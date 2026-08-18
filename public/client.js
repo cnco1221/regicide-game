@@ -162,6 +162,62 @@
     return !!a && !!b && a.suit === b.suit && a.rank === b.rank;
   }
 
+  const FALL_MS = 550;
+  let enemyCardTimer = null;
+
+  function paintEnemyCard(s) {
+    const enemyCard = $('enemyCard');
+    const e = s.currentEnemy;
+    if (e) {
+      const cls = SUIT_CLASS[e.suit];
+      enemyCard.className = `enemy-card suit-${cls}`;
+      enemyCard.innerHTML = `<div class="rank">${e.rank}</div><div class="suit">${SUIT_SYMBOL[e.suit]}</div>`;
+      $('enemyHealthText').textContent = `${Math.max(0, e.healthRemaining)}/${e.health}`;
+      $('enemyAttackText').textContent = e.value !== e.baseValue ? `${e.value} (원래 ${e.baseValue})` : `${e.value}`;
+      $('immuneNote').classList.toggle('hidden', !s.enemyImmunityRemoved);
+    } else {
+      enemyCard.className = 'enemy-card';
+      enemyCard.innerHTML = '';
+      $('enemyHealthText').textContent = '-';
+      $('enemyAttackText').textContent = '-';
+      $('immuneNote').classList.add('hidden');
+    }
+  }
+
+  function renderEnemy(s, prev) {
+    const enemyCard = $('enemyCard');
+    const defeated = prev && prev.currentEnemy && !sameEnemy(prev.currentEnemy, s.currentEnemy);
+
+    if (enemyCardTimer) {
+      clearTimeout(enemyCardTimer);
+      enemyCardTimer = null;
+    }
+
+    if (defeated) {
+      // keep showing the old (defeated) enemy while it topples over
+      enemyCard.classList.remove('rising');
+      enemyCard.classList.remove('hit');
+      void enemyCard.offsetWidth;
+      enemyCard.classList.add('falling');
+      triggerEnemyDefeat();
+      enemyCardTimer = setTimeout(() => {
+        paintEnemyCard(s);
+        enemyCard.classList.remove('falling');
+        if (s.currentEnemy) {
+          void enemyCard.offsetWidth;
+          enemyCard.classList.add('rising');
+          enemyCardTimer = setTimeout(() => enemyCard.classList.remove('rising'), 550);
+        }
+      }, FALL_MS);
+      return;
+    }
+
+    paintEnemyCard(s);
+    if (prev && sameEnemy(prev.currentEnemy, s.currentEnemy) && s.currentEnemy.healthRemaining < prev.currentEnemy.healthRemaining) {
+      triggerEnemyHit(prev.currentEnemy.healthRemaining - s.currentEnemy.healthRemaining);
+    }
+  }
+
   function renderState(s, prev) {
     // deck counts
     $('castleCount').textContent = s.castleCount;
@@ -179,33 +235,9 @@
     });
 
     // enemy
-    const enemyCard = $('enemyCard');
-    const e = s.currentEnemy;
-    if (e) {
-      const cls = SUIT_CLASS[e.suit];
-      enemyCard.className = `enemy-card suit-${cls}`;
-      enemyCard.innerHTML = `<div class="rank">${e.rank}</div><div class="suit">${SUIT_SYMBOL[e.suit]}</div>`;
-      $('enemyHealthText').textContent = `${Math.max(0, e.healthRemaining)}/${e.health}`;
-      $('enemyAttackText').textContent = e.value !== e.baseValue ? `${e.value} (원래 ${e.baseValue})` : `${e.value}`;
-      $('immuneNote').classList.toggle('hidden', !s.enemyImmunityRemoved);
-    } else {
-      enemyCard.className = 'enemy-card';
-      enemyCard.innerHTML = '';
-      $('enemyHealthText').textContent = '-';
-      $('enemyAttackText').textContent = '-';
-      $('immuneNote').classList.add('hidden');
-    }
-
-    // effects: compare against the previous state now that the card is repainted
-    if (prev) {
-      if (sameEnemy(prev.currentEnemy, s.currentEnemy) && s.currentEnemy.healthRemaining < prev.currentEnemy.healthRemaining) {
-        triggerEnemyHit(prev.currentEnemy.healthRemaining - s.currentEnemy.healthRemaining);
-      } else if (prev.currentEnemy && !sameEnemy(prev.currentEnemy, s.currentEnemy)) {
-        triggerEnemyDefeat();
-      }
-      if (prev.phase !== 'defend' && s.phase === 'defend') {
-        triggerRedFlash();
-      }
+    renderEnemy(s, prev);
+    if (prev && prev.phase !== 'defend' && s.phase === 'defend') {
+      triggerRedFlash();
     }
 
     // piles

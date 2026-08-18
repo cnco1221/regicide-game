@@ -383,6 +383,27 @@ h2 { color: var(--accent); margin-top: 0; }
   100% { transform: translate(0,0) rotate(0); filter: brightness(1); }
 }
 
+.enemy-card.falling {
+  transform-origin: bottom center;
+  animation: cardFall 0.55s cubic-bezier(.55,.06,.68,.19) forwards;
+}
+@keyframes cardFall {
+  0% { transform: rotate(0deg) translateY(0); opacity: 1; }
+  70% { transform: rotate(94deg) translateY(6px); opacity: 1; }
+  100% { transform: rotate(94deg) translateY(10px); opacity: 0.35; }
+}
+
+.enemy-card.rising {
+  transform-origin: bottom center;
+  animation: cardStandUp 0.55s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+@keyframes cardStandUp {
+  0% { transform: rotate(94deg) translateY(10px); opacity: 0.35; }
+  10% { opacity: 1; }
+  60% { transform: rotate(-8deg) translateY(0); opacity: 1; }
+  100% { transform: rotate(0deg) translateY(0); opacity: 1; }
+}
+
 .enemy-area.defeat-flash { animation: defeatFlash 0.8s ease; }
 @keyframes defeatFlash {
   0% { box-shadow: inset 0 0 0 rgba(212,175,55,0); }
