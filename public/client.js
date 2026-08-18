@@ -2,6 +2,12 @@
   const SUIT_SYMBOL = { S: '♠', H: '♥', D: '♦', C: '♣' };
   const SUIT_CLASS = { S: 'black', H: 'red', D: 'red', C: 'black' };
   const SUIT_NAME = { S: '스페이드', H: '하트', D: '다이아몬드', C: '클럽' };
+  const CARD_ART = {
+    J: { S: 'cards/jack_of_spades.png', H: 'cards/jack_of_hearts.png', D: 'cards/jack_of_diamonds.png', C: 'cards/jack_of_clubs.png' },
+  };
+  function cardArt(rank, suit) {
+    return (CARD_ART[rank] && CARD_ART[rank][suit]) || null;
+  }
 
   let ws = null;
   let myPlayerId = sessionStorage.getItem('regicide_playerId') || null;
@@ -96,6 +102,10 @@
     if (card.rank === 'JOKER') {
       return `<div class="pc-suit-center">🃏</div>`;
     }
+    const art = cardArt(card.rank, card.suit);
+    if (art) {
+      return `<img class="card-art" src="${art}" alt="${card.rank} ${SUIT_SYMBOL[card.suit]}" />`;
+    }
     const cls = SUIT_CLASS[card.suit];
     const sym = SUIT_SYMBOL[card.suit];
     return `
@@ -108,6 +118,10 @@
   function smallCardHtml(card) {
     if (card.rank === 'JOKER') {
       return `<div class="suit">🃏</div>`;
+    }
+    const art = cardArt(card.rank, card.suit);
+    if (art) {
+      return `<img class="card-art" src="${art}" alt="${card.rank} ${SUIT_SYMBOL[card.suit]}" />`;
     }
     const cls = SUIT_CLASS[card.suit];
     const sym = SUIT_SYMBOL[card.suit];
@@ -170,8 +184,11 @@
     const e = s.currentEnemy;
     if (e) {
       const cls = SUIT_CLASS[e.suit];
-      enemyCard.className = `enemy-card suit-${cls}`;
-      enemyCard.innerHTML = `<div class="rank">${e.rank}</div><div class="suit">${SUIT_SYMBOL[e.suit]}</div>`;
+      const art = cardArt(e.rank, e.suit);
+      enemyCard.className = `enemy-card suit-${cls}` + (art ? ' has-art' : '');
+      enemyCard.innerHTML = art
+        ? `<img class="card-art" src="${art}" alt="${e.rank} ${SUIT_SYMBOL[e.suit]}" />`
+        : `<div class="rank">${e.rank}</div><div class="suit">${SUIT_SYMBOL[e.suit]}</div>`;
       $('enemyHealthText').textContent = `${Math.max(0, e.healthRemaining)}/${e.health}`;
       $('enemyAttackText').textContent = e.value !== e.baseValue ? `${e.value} (원래 ${e.baseValue})` : `${e.value}`;
       $('immuneNote').classList.toggle('hidden', !s.enemyImmunityRemoved);
@@ -246,9 +263,11 @@
     const discardCard = $('discardPileCard');
     if (s.discardTop) {
       discardCard.classList.remove('empty');
+      discardCard.classList.toggle('has-art', !!cardArt(s.discardTop.rank, s.discardTop.suit));
       discardCard.innerHTML = smallCardHtml(s.discardTop);
     } else {
       discardCard.classList.add('empty');
+      discardCard.classList.remove('has-art');
       discardCard.innerHTML = '';
     }
     $('discardCount').textContent = `${s.discardCount}장`;
@@ -291,7 +310,9 @@
     $('handCount').textContent = `(${s.yourHand.length}장)`;
     s.yourHand.forEach((card, idx) => {
       const div = document.createElement('div');
-      div.className = 'playing-card' + (card.rank === 'JOKER' ? ' joker' : '');
+      div.className = 'playing-card'
+        + (card.rank === 'JOKER' ? ' joker' : '')
+        + (cardArt(card.rank, card.suit) ? ' has-art' : '');
       div.innerHTML = cardHtml(card);
       div.dataset.idx = idx;
       div.onclick = () => toggleSelect(idx, div);

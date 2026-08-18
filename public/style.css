@@ -234,6 +234,7 @@ h2 { color: var(--accent); margin-top: 0; }
   height: 104px;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  overflow: hidden;
 }
 .pile-card.back {
   background: repeating-linear-gradient(45deg, #2c4459, #2c4459 6px, #345170 6px, #345170 12px);
@@ -356,6 +357,17 @@ h2 { color: var(--accent); margin-top: 0; }
 .log-box div { border-bottom: 1px dashed rgba(255,255,255,0.06); padding: 3px 0; }
 
 #screen-end .panel { text-align: center; }
+
+/* ---- Custom card art ---- */
+.card-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.enemy-card.has-art { background: none; border: none; }
+.playing-card.has-art { background: none; border: none; }
+.pile-card.discard.has-art { background: none; border: none; }
 
 /* ---- Effects ---- */
 .flash-overlay {
