@@ -409,6 +409,9 @@ function stateViewFor(room, viewerIdx) {
     castleCount: room.castleDeck.length,
     tavernCount: room.tavernDeck.length,
     discardCount: room.discardPile.length,
+    discardTop: room.discardPile.length
+      ? (({ suit, rank, value }) => ({ suit, rank, value }))(room.discardPile[room.discardPile.length - 1])
+      : null,
     pendingDefend: room.pendingDefend,
     lastActionWasYield: room.lastActionWasYield,
     log: room.log.slice(-40),

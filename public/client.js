@@ -86,24 +86,31 @@
     return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  function cardHtml(card, opts = {}) {
+  function cardHtml(card) {
     if (card.rank === 'JOKER') {
       return `<div class="pc-suit-center">🃏</div>`;
     }
     const cls = SUIT_CLASS[card.suit];
     const sym = SUIT_SYMBOL[card.suit];
     return `
-      <div class="pc-rank ${cls}">${card.rank}<br>${sym}</div>
+      <div class="pc-corner top ${cls}"><span class="r">${card.rank}</span><span class="s">${sym}</span></div>
       <div class="pc-suit-center ${cls}">${sym}</div>
-      <div class="pc-rank bottom ${cls}">${card.rank}<br>${sym}</div>
+      <div class="pc-corner bottom ${cls}"><span class="r">${card.rank}</span><span class="s">${sym}</span></div>
     `;
+  }
+
+  function smallCardHtml(card) {
+    if (card.rank === 'JOKER') {
+      return `<div class="suit">🃏</div>`;
+    }
+    const cls = SUIT_CLASS[card.suit];
+    const sym = SUIT_SYMBOL[card.suit];
+    return `<div class="rank ${cls}">${card.rank}</div><div class="suit ${cls}">${sym}</div>`;
   }
 
   function renderState(s) {
     // deck counts
     $('castleCount').textContent = s.castleCount;
-    $('tavernCount').textContent = s.tavernCount;
-    $('discardCount').textContent = s.discardCount;
 
     // players strip
     const strip = $('playersStrip');
@@ -124,17 +131,29 @@
       const cls = SUIT_CLASS[e.suit];
       enemyCard.className = `enemy-card suit-${cls}`;
       enemyCard.innerHTML = `<div class="rank">${e.rank}</div><div class="suit">${SUIT_SYMBOL[e.suit]}</div>`;
-      const pct = Math.max(0, Math.min(100, (e.healthRemaining / e.health) * 100));
-      $('hpBar').style.width = pct + '%';
-      $('enemyText').textContent = `${SUIT_NAME[e.suit]} ${e.rank} · 공격력 ${e.value}${e.value !== e.baseValue ? ` (원래 ${e.baseValue})` : ''} · 체력 ${Math.max(0, e.healthRemaining)}/${e.health}`;
+      $('enemyHealthText').textContent = `${Math.max(0, e.healthRemaining)}/${e.health}`;
+      $('enemyAttackText').textContent = e.value !== e.baseValue ? `${e.value} (원래 ${e.baseValue})` : `${e.value}`;
       $('immuneNote').classList.toggle('hidden', !s.enemyImmunityRemoved);
     } else {
       enemyCard.className = 'enemy-card';
       enemyCard.innerHTML = '';
-      $('hpBar').style.width = '0%';
-      $('enemyText').textContent = '';
+      $('enemyHealthText').textContent = '-';
+      $('enemyAttackText').textContent = '-';
       $('immuneNote').classList.add('hidden');
     }
+
+    // piles
+    $('tavernPileCard').classList.remove('empty');
+    $('tavernCount').textContent = `${s.tavernCount}장`;
+    const discardCard = $('discardPileCard');
+    if (s.discardTop) {
+      discardCard.classList.remove('empty');
+      discardCard.innerHTML = smallCardHtml(s.discardTop);
+    } else {
+      discardCard.classList.add('empty');
+      discardCard.innerHTML = '';
+    }
+    $('discardCount').textContent = `${s.discardCount}장`;
 
     // turn banner
     const meTurn = s.currentPlayerIdx === s.yourIdx;

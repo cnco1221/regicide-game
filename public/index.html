@@ -52,20 +52,36 @@
     <div class="topbar">
       <div class="deck-info">
         <div class="deck-chip">🏰 성 더미 <b id="castleCount">0</b></div>
-        <div class="deck-chip">🍺 여관 더미 <b id="tavernCount">0</b></div>
-        <div class="deck-chip">🗑️ 버린 더미 <b id="discardCount">0</b></div>
       </div>
       <div class="players-strip" id="playersStrip"></div>
     </div>
 
     <div class="enemy-area" id="enemyArea">
-      <div class="enemy-card" id="enemyCard"></div>
-      <div class="enemy-stats">
-        <div class="hp-bar-wrap">
-          <div class="hp-bar" id="hpBar"></div>
+      <div class="pile-stack">
+        <div class="pile-card back" id="tavernPileCard"></div>
+        <div class="pile-label">여관 더미</div>
+        <div class="pile-count" id="tavernCount">0장</div>
+      </div>
+
+      <div class="enemy-block">
+        <div class="enemy-card" id="enemyCard"></div>
+        <div class="enemy-stats">
+          <div class="stat-line">
+            <span class="stat-label">체력</span>
+            <span class="stat-value" id="enemyHealthText">0/0</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">공격력</span>
+            <span class="stat-value" id="enemyAttackText">0</span>
+          </div>
+          <div id="immuneNote" class="immune-note hidden">🃏 면역 해제됨</div>
         </div>
-        <div id="enemyText" class="enemy-text"></div>
-        <div id="immuneNote" class="immune-note hidden">🃏 면역 해제됨</div>
+      </div>
+
+      <div class="pile-stack">
+        <div class="pile-card discard" id="discardPileCard"></div>
+        <div class="pile-label">버린 더미</div>
+        <div class="pile-count" id="discardCount">0장</div>
       </div>
     </div>
 
