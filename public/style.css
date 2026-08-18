@@ -171,6 +171,7 @@ h2 { color: var(--accent); margin-top: 0; }
 }
 
 .enemy-block {
+  position: relative;
   display: flex;
   gap: 20px;
   align-items: center;
@@ -355,3 +356,95 @@ h2 { color: var(--accent); margin-top: 0; }
 .log-box div { border-bottom: 1px dashed rgba(255,255,255,0.06); padding: 3px 0; }
 
 #screen-end .panel { text-align: center; }
+
+/* ---- Effects ---- */
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: radial-gradient(ellipse at center, rgba(225,60,60,0.55), rgba(225,60,60,0.12) 55%, transparent 78%);
+  opacity: 0;
+  pointer-events: none;
+}
+.flash-overlay.flash-red { animation: flashRed 0.7s ease-out; }
+@keyframes flashRed {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.enemy-card.hit { animation: enemyHit 0.45s ease; }
+@keyframes enemyHit {
+  0% { transform: translate(0,0) rotate(0); filter: brightness(1); }
+  20% { transform: translate(-7px,1px) rotate(-3deg); filter: brightness(1.9) drop-shadow(0 0 14px #ff5050); }
+  45% { transform: translate(6px,-1px) rotate(3deg); }
+  65% { transform: translate(-4px,0) rotate(-1.5deg); }
+  85% { transform: translate(2px,0) rotate(1deg); }
+  100% { transform: translate(0,0) rotate(0); filter: brightness(1); }
+}
+
+.enemy-area.defeat-flash { animation: defeatFlash 0.8s ease; }
+@keyframes defeatFlash {
+  0% { box-shadow: inset 0 0 0 rgba(212,175,55,0); }
+  30% { box-shadow: inset 0 0 60px 6px rgba(212,175,55,0.55); }
+  100% { box-shadow: inset 0 0 0 rgba(212,175,55,0); }
+}
+
+.dmg-float {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 32px;
+  font-weight: 800;
+  color: #ff5050;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  pointer-events: none;
+  animation: dmgFloat 0.9s ease-out forwards;
+  z-index: 5;
+}
+@keyframes dmgFloat {
+  0% { opacity: 0; transform: translate(-50%, 10px) scale(0.6); }
+  20% { opacity: 1; transform: translate(-50%, -6px) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, -56px) scale(1); }
+}
+
+.death-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5,5,8,0);
+  pointer-events: none;
+}
+.death-overlay.play { animation: deathBg 1.5s ease forwards; }
+@keyframes deathBg {
+  0% { background: rgba(5,5,8,0); }
+  25% { background: rgba(5,5,8,0.88); }
+  100% { background: rgba(5,5,8,0.88); }
+}
+.death-content { text-align: center; opacity: 0; transform: scale(0.4) rotate(-6deg); }
+.death-overlay.play .death-content {
+  animation: deathPop 1.2s cubic-bezier(.2,1.6,.35,1) 0.15s forwards;
+}
+@keyframes deathPop {
+  0% { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+  55% { opacity: 1; transform: scale(1.18) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+.death-icon {
+  font-size: 100px;
+  line-height: 1;
+  filter: drop-shadow(0 0 22px rgba(255,80,80,0.65));
+}
+.death-overlay.win .death-icon { filter: drop-shadow(0 0 26px rgba(212,175,55,0.85)); }
+.death-text {
+  margin-top: 10px;
+  font-size: 42px;
+  font-weight: 800;
+  color: #ff6b6b;
+  letter-spacing: 6px;
+}
+.death-overlay.win .death-text { color: var(--accent); }

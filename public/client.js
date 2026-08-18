@@ -47,14 +47,20 @@
     } else if (msg.type === 'lobby') {
       renderLobby(msg);
     } else if (msg.type === 'state') {
+      const prev = latestState;
       latestState = msg;
       mySeat = msg.yourIdx;
       if (msg.phase === 'win' || msg.phase === 'lose') {
-        renderState(msg);
-        setTimeout(() => renderEnd(msg), 400);
+        renderState(msg, prev);
+        if (!prev || prev.phase !== msg.phase) {
+          triggerEndEffect(msg.phase === 'win');
+          setTimeout(() => renderEnd(msg), 1500);
+        } else {
+          renderEnd(msg);
+        }
       } else {
         showScreen('game');
-        renderState(msg);
+        renderState(msg, prev);
       }
     } else if (msg.type === 'error') {
       $('homeError').textContent = msg.message;
@@ -108,7 +114,55 @@
     return `<div class="rank ${cls}">${card.rank}</div><div class="suit ${cls}">${sym}</div>`;
   }
 
-  function renderState(s) {
+  function triggerRedFlash() {
+    const el = $('flashOverlay');
+    el.classList.remove('flash-red');
+    void el.offsetWidth;
+    el.classList.add('flash-red');
+  }
+
+  function spawnDamageNumber(n) {
+    const host = document.querySelector('.enemy-block');
+    if (!host) return;
+    const el = document.createElement('div');
+    el.className = 'dmg-float';
+    el.textContent = '-' + n;
+    host.appendChild(el);
+    setTimeout(() => el.remove(), 950);
+  }
+
+  function triggerEnemyHit(damage) {
+    const card = $('enemyCard');
+    card.classList.remove('hit');
+    void card.offsetWidth;
+    card.classList.add('hit');
+    if (damage > 0) spawnDamageNumber(damage);
+  }
+
+  function triggerEnemyDefeat() {
+    const area = $('enemyArea');
+    area.classList.remove('defeat-flash');
+    void area.offsetWidth;
+    area.classList.add('defeat-flash');
+  }
+
+  function triggerEndEffect(win) {
+    const el = $('deathOverlay');
+    el.classList.toggle('win', win);
+    el.classList.toggle('lose', !win);
+    el.querySelector('.death-icon').textContent = win ? '👑' : '💀';
+    el.querySelector('.death-text').textContent = win ? '승리!' : '패배...';
+    el.classList.remove('hidden');
+    el.classList.remove('play');
+    void el.offsetWidth;
+    el.classList.add('play');
+  }
+
+  function sameEnemy(a, b) {
+    return !!a && !!b && a.suit === b.suit && a.rank === b.rank;
+  }
+
+  function renderState(s, prev) {
     // deck counts
     $('castleCount').textContent = s.castleCount;
 
@@ -140,6 +194,18 @@
       $('enemyHealthText').textContent = '-';
       $('enemyAttackText').textContent = '-';
       $('immuneNote').classList.add('hidden');
+    }
+
+    // effects: compare against the previous state now that the card is repainted
+    if (prev) {
+      if (sameEnemy(prev.currentEnemy, s.currentEnemy) && s.currentEnemy.healthRemaining < prev.currentEnemy.healthRemaining) {
+        triggerEnemyHit(prev.currentEnemy.healthRemaining - s.currentEnemy.healthRemaining);
+      } else if (prev.currentEnemy && !sameEnemy(prev.currentEnemy, s.currentEnemy)) {
+        triggerEnemyDefeat();
+      }
+      if (prev.phase !== 'defend' && s.phase === 'defend') {
+        triggerRedFlash();
+      }
     }
 
     // piles
@@ -249,6 +315,9 @@
   }
 
   function renderEnd(s) {
+    const el = $('deathOverlay');
+    el.classList.add('hidden');
+    el.classList.remove('play');
     showScreen('end');
     if (s.phase === 'win') {
       $('endTitle').textContent = '🎉 승리했습니다!';
