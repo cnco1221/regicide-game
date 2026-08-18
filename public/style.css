@@ -120,20 +120,35 @@ h2 { color: var(--accent); margin-top: 0; }
 .player-list li.offline .dot { color: var(--danger); }
 
 /* ---- Game screen ---- */
+#screen-game.screen {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  align-items: stretch;
+  padding: 14px;
+  overflow: hidden;
+}
+
 .game-layout {
   width: 100%;
   max-width: 1180px;
+  height: 100%;
   margin: 0 auto;
-  padding: 20px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  min-height: 0;
 }
 
 .game-main {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .topbar {
@@ -171,7 +186,7 @@ h2 { color: var(--accent); margin-top: 0; }
 .enemy-area {
   background: var(--panel);
   border-radius: 16px;
-  padding: 28px;
+  padding: 20px 28px;
   display: flex;
   gap: 40px;
   align-items: center;
@@ -188,8 +203,8 @@ h2 { color: var(--accent); margin-top: 0; }
 
 .enemy-card {
   position: relative;
-  width: 160px;
-  height: 224px;
+  width: 208px;
+  height: 291px;
   flex: none;
   background: linear-gradient(160deg, #2b1a12, #1a1109);
   border: 3px solid var(--accent);
@@ -202,7 +217,7 @@ h2 { color: var(--accent); margin-top: 0; }
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -58%);
-  font-size: 62px;
+  font-size: 80px;
   font-weight: 800;
   line-height: 1;
 }
@@ -210,7 +225,7 @@ h2 { color: var(--accent); margin-top: 0; }
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, 30%);
-  font-size: 42px;
+  font-size: 54px;
   line-height: 1;
 }
 .enemy-card.suit-red { color: var(--red); border-color: var(--red); }
@@ -632,21 +647,8 @@ h2 { color: var(--accent); margin-top: 0; }
 
 /* ---- Mobile: fit the whole game screen without scrolling ---- */
 @media (max-width: 768px) {
-  #screen-game.screen {
-    height: 100vh;
-    height: 100dvh;
-    min-height: 100vh;
-    min-height: 100dvh;
-    align-items: stretch;
-    padding: 6px;
-  }
-  .game-layout {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    gap: 6px;
-    overflow-y: auto;
-  }
+  #screen-game.screen { padding: 6px; }
+  .game-layout { padding: 0; gap: 6px; }
   .game-main { gap: 6px; }
 
   .log-panel { display: none; }

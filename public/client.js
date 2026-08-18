@@ -366,7 +366,7 @@
 
     $('btnPlay').classList.toggle('hidden', !inPlay);
     $('btnJester').classList.toggle('hidden', !inPlay);
-    $('btnYield').classList.toggle('hidden', !inPlay);
+    $('btnYield').classList.toggle('hidden', !inPlay || s.numPlayers === 1);
     $('btnDiscardConfirm').classList.toggle('hidden', !inDefend);
 
     $('btnPlay').disabled = selected.size === 0;

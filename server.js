@@ -204,9 +204,13 @@ function diamondsPower(room, n, startIdx) {
 function checkStuck(room) {
   if (room.phase !== 'play') return;
   const p = room.players[room.currentPlayerIdx];
-  if (p.hand.length === 0 && room.lastActionWasYield) {
+  // In solo mode there's no yield to fall back on, so an empty hand is an
+  // immediate dead end. In multiplayer, a player can still yield unless the
+  // previous player already did.
+  const stuck = p.hand.length === 0 && (room.numPlayers === 1 || room.lastActionWasYield);
+  if (stuck) {
     room.phase = 'lose';
-    pushLog(room, `${p.name}에게 낼 카드가 없고 양보도 할 수 없습니다. 패배했습니다.`);
+    pushLog(room, `${p.name}에게 낼 카드가 없어 더 이상 진행할 수 없습니다. 패배했습니다.`);
   }
 }
 
@@ -355,6 +359,7 @@ function handleRequestYield(room, playerIdx) {
 }
 
 function handleYield(room, playerIdx) {
+  if (room.numPlayers === 1) return { error: '싱글모드에서는 양보할 수 없습니다.' };
   if (room.phase !== 'play' || playerIdx !== room.currentPlayerIdx) return { error: '지금은 양보할 수 없습니다.' };
   if (room.lastActionWasYield) return { error: '연속으로 양보할 수 없습니다.' };
   const required = currentEnemyAttack(room);
