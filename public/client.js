@@ -169,6 +169,10 @@
     card.classList.remove('hit');
     void card.offsetWidth;
     card.classList.add('hit');
+    // The 'hit' shake and the persistent 'immunity-removed' glow both use the
+    // `animation` shorthand, so a lingering 'hit' class would permanently
+    // mask the glow. Clear it once its one-shot animation has finished.
+    setTimeout(() => card.classList.remove('hit'), 450);
     if (damage > 0) spawnDamageNumber(damage);
   }
 
@@ -204,7 +208,9 @@
     if (e) {
       const cls = SUIT_CLASS[e.suit];
       const art = cardArt(e.rank, e.suit);
-      enemyCard.className = `enemy-card suit-${cls}` + (art ? ' has-art' : '');
+      enemyCard.className = `enemy-card suit-${cls}`
+        + (art ? ' has-art' : '')
+        + (s.enemyImmunityRemoved ? ' immunity-removed' : '');
       enemyCard.innerHTML = art
         ? `<img class="card-art" src="${art}" alt="${e.rank} ${SUIT_SYMBOL[e.suit]}" />`
         : `<div class="rank">${e.rank}</div><div class="suit">${SUIT_SYMBOL[e.suit]}</div>`;

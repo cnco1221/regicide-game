@@ -316,23 +316,26 @@ function handleJester(room, playerIdx) {
   const hand = room.players[playerIdx].hand;
   const jokerIdx = hand.findIndex((c) => c.rank === 'JOKER');
   if (jokerIdx === -1) return { error: '어릿광대 카드가 없습니다.' };
-  const [joker] = hand.splice(jokerIdx, 1);
-  room.discardPile.push(joker);
+  // The jester card itself is spent, not discarded - it leaves the game entirely.
+  hand.splice(jokerIdx, 1);
+  room.enemyImmunityRemoved = true;
 
   if (room.numPlayers === 1) {
-    // Solo variant: instead of removing enemy immunity, discard the rest
-    // of the hand and draw a fresh one.
+    // Solo variant: on top of removing enemy immunity, discard the rest of
+    // the hand and draw a fresh one (there's no other player to pass to).
     room.discardPile.push(...hand.splice(0, hand.length));
     let drawn = 0;
     while (hand.length < room.maxHand && room.tavernDeck.length) {
       hand.push(room.tavernDeck.shift());
       drawn++;
     }
-    pushLog(room, `${room.players[playerIdx].name}가 어릿광대를 냈습니다. 손패를 모두 버리고 ${drawn}장을 새로 뽑았습니다.`);
+    pushLog(
+      room,
+      `${room.players[playerIdx].name}가 어릿광대를 냈습니다. ${cardLabel(room.currentEnemy)}의 면역이 사라지고, 손패를 모두 버리고 ${drawn}장을 새로 뽑았습니다.`
+    );
     return {};
   }
 
-  room.enemyImmunityRemoved = true;
   room.phase = 'chooseNext';
   pushLog(room, `${room.players[playerIdx].name}가 어릿광대를 냈습니다. ${cardLabel(room.currentEnemy)}의 면역이 사라집니다.`);
   return {};
