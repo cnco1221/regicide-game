@@ -9,6 +9,58 @@
     return (CARD_ART[rank] && CARD_ART[rank][suit]) || null;
   }
 
+  // ---- Synthesized sound effects (no audio files needed) ----
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        return null;
+      }
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  document.addEventListener('pointerdown', ensureAudio, { once: true });
+
+  function playTone({ freq, startFreq, endFreq, duration = 0.15, type = 'sine', gain = 0.2, delay = 0 }) {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    const t0 = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = type;
+    if (startFreq && endFreq) {
+      osc.frequency.setValueAtTime(startFreq, t0);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(endFreq, 1), t0 + duration);
+    } else {
+      osc.frequency.setValueAtTime(freq, t0);
+    }
+    gainNode.gain.setValueAtTime(0.0001, t0);
+    gainNode.gain.linearRampToValueAtTime(gain, t0 + 0.012);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+    osc.connect(gainNode).connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.03);
+  }
+
+  function sfxClick() {
+    playTone({ type: 'triangle', startFreq: 950, endFreq: 620, duration: 0.045, gain: 0.12 });
+  }
+  function sfxHit() {
+    playTone({ type: 'square', startFreq: 190, endFreq: 55, duration: 0.14, gain: 0.22 });
+    playTone({ type: 'sawtooth', startFreq: 90, endFreq: 40, duration: 0.1, gain: 0.14, delay: 0.015 });
+  }
+  function sfxYourTurn() {
+    playTone({ type: 'sine', freq: 523.25, duration: 0.13, gain: 0.16 });
+    playTone({ type: 'sine', freq: 783.99, duration: 0.2, gain: 0.16, delay: 0.1 });
+  }
+  function sfxEnemyDeath() {
+    playTone({ type: 'sawtooth', startFreq: 420, endFreq: 55, duration: 0.55, gain: 0.2 });
+    playTone({ type: 'square', startFreq: 210, endFreq: 40, duration: 0.4, gain: 0.12, delay: 0.05 });
+  }
+
   let ws = null;
   let myPlayerId = sessionStorage.getItem('regicide_playerId') || null;
   let myCode = sessionStorage.getItem('regicide_code') || null;
@@ -242,6 +294,7 @@
       void enemyCard.offsetWidth;
       enemyCard.classList.add('falling');
       triggerEnemyDefeat();
+      sfxEnemyDeath();
       enemyCardTimer = setTimeout(() => {
         paintEnemyCard(s);
         enemyCard.classList.remove('falling');
@@ -281,6 +334,9 @@
     if (prev && prev.phase !== 'defend' && s.phase === 'defend') {
       triggerRedFlash();
     }
+    if (prev && (s.cardsInPlay ? s.cardsInPlay.length : 0) > (prev.cardsInPlay ? prev.cardsInPlay.length : 0)) {
+      sfxHit();
+    }
 
     // piles
     $('tavernPileCard').classList.remove('empty');
@@ -300,20 +356,10 @@
     // cards currently in play against this enemy
     renderPlayedCards(s);
 
-    // turn banner
     const meTurn = s.currentPlayerIdx === s.yourIdx;
-    const curName = s.players[s.currentPlayerIdx] ? s.players[s.currentPlayerIdx].name : '';
-    $('turnBannerText').textContent = meTurn ? '⭐ 당신의 차례입니다!' : `${curName}의 차례를 기다리는 중...`;
     $('btnRequestYield').classList.toggle('hidden', meTurn || s.phase !== 'play');
-
-    // defend panel
-    const inDefend = s.phase === 'defend';
-    $('defendPanel').classList.toggle('hidden', !inDefend);
-    if (inDefend) {
-      const need = s.pendingDefend.required;
-      $('defendText').textContent = meTurn
-        ? `적의 반격! 카드 합계 ${need} 이상이 되도록 버릴 카드를 고르세요.`
-        : `${curName}가 ${need}만큼 피해를 방어하는 중입니다...`;
+    if (prev && s.phase === 'play' && meTurn && !(prev.phase === 'play' && prev.currentPlayerIdx === prev.yourIdx)) {
+      sfxYourTurn();
     }
 
     // choose next panel (jester)
@@ -356,6 +402,7 @@
     const canSelect = s.phase === 'play' || s.phase === 'defend';
     const meTurn = s.currentPlayerIdx === s.yourIdx;
     if (!canSelect || !meTurn) return;
+    sfxClick();
     if (selected.has(idx)) {
       selected.delete(idx);
       div.classList.remove('selected');
