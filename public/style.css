@@ -9,6 +9,7 @@
   --red: #e15b5b;
   --black: #1c1c1c;
   --green: #4caf6a;
+  --yellow: #e0b429;
   --danger: #e15b5b;
   --card-bg: #fbf6ea;
 }
@@ -28,6 +29,8 @@ html, body {
 
 .red { color: var(--red); }
 .black { color: #1c1c1c; }
+.yellow { color: var(--yellow); }
+.green { color: var(--green); }
 
 .screen {
   min-height: 100vh;
@@ -206,6 +209,8 @@ h2 { color: var(--accent); margin-top: 0; }
 }
 .enemy-card.suit-red { color: var(--red); border-color: var(--red); }
 .enemy-card.suit-black { color: #d4af37; }
+.enemy-card.suit-yellow { color: var(--yellow); border-color: var(--yellow); }
+.enemy-card.suit-green { color: var(--green); border-color: var(--green); }
 
 .enemy-stats { display: flex; flex-direction: column; gap: 10px; min-width: 160px; }
 .stat-line { display: flex; flex-direction: column; }
@@ -287,6 +292,15 @@ h2 { color: var(--accent); margin-top: 0; }
   padding: 16px;
 }
 .hand-title { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+.log-line {
+  display: none;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 6px;
+}
 
 .hand-cards {
   display: flex;
@@ -315,6 +329,8 @@ h2 { color: var(--accent); margin-top: 0; }
 .playing-card.selected { transform: translateY(-14px); box-shadow: 0 0 0 3px var(--accent), 0 6px 14px rgba(0,0,0,0.4); }
 .playing-card .red { color: var(--red); }
 .playing-card .black { color: #1c1c1c; }
+.playing-card .yellow { color: var(--yellow); }
+.playing-card .green { color: var(--green); }
 .playing-card .pc-corner {
   position: absolute;
   display: flex;
@@ -481,3 +497,66 @@ h2 { color: var(--accent); margin-top: 0; }
   letter-spacing: 6px;
 }
 .death-overlay.win .death-text { color: var(--accent); }
+
+/* ---- Mobile: fit the whole game screen without scrolling ---- */
+@media (max-width: 768px) {
+  #screen-game.screen {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    align-items: stretch;
+    padding: 6px;
+  }
+  .game-layout {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    gap: 6px;
+    overflow-y: auto;
+  }
+
+  .log-panel { display: none; }
+  .log-line { display: block; }
+
+  .topbar { gap: 6px; }
+  .deck-chip { padding: 4px 8px; font-size: 11px; border-radius: 14px; }
+  .player-chip { padding: 4px 6px; font-size: 11px; min-width: 46px; border-radius: 8px; }
+
+  .enemy-area { padding: 8px 10px; gap: 10px; border-radius: 10px; }
+  .enemy-block { gap: 10px; }
+  .enemy-card { width: 68px; height: 96px; border-radius: 8px; }
+  .enemy-card .rank { font-size: 26px; }
+  .enemy-card .suit { font-size: 18px; }
+  .enemy-stats { gap: 3px; min-width: 90px; }
+  .stat-label { font-size: 10px; }
+  .stat-value { font-size: 22px; }
+  .immune-note { font-size: 10px; padding: 2px 7px; }
+
+  .pile-stack { gap: 3px; }
+  .pile-card { width: 44px; height: 62px; border-radius: 6px; }
+  .pile-card.discard .rank { font-size: 18px; }
+  .pile-card.discard .suit { font-size: 14px; }
+  .pile-label { font-size: 9px; }
+  .pile-count { font-size: 11px; }
+
+  .turn-banner { font-size: 12px; padding: 5px; border-radius: 6px; }
+  .defend-panel, .choose-next { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+  .choose-next .row.wrap { gap: 6px; }
+
+  .hand-area { padding: 8px; border-radius: 10px; flex: none; }
+  .hand-title { margin-bottom: 2px; font-size: 11px; }
+  .hand-cards { min-height: 84px; gap: 2px; }
+  .playing-card { width: 52px; height: 76px; border-radius: 6px; }
+  .playing-card .pc-corner .r { font-size: 11px; }
+  .playing-card .pc-corner .s { font-size: 9px; }
+  .playing-card .pc-corner.top { top: 3px; left: 3px; }
+  .playing-card .pc-corner.bottom { bottom: 3px; right: 3px; }
+  .playing-card .pc-suit-center { font-size: 18px; }
+  .playing-card.selected { transform: translateY(-8px); }
+  .playing-card:hover { transform: translateY(-4px); }
+
+  .action-row { margin-top: 6px; gap: 6px; }
+  .action-row .btn { padding: 8px 8px; font-size: 12px; flex: 1 1 80px; }
+  #selectionInfo, #actionError { font-size: 11px; margin: 2px 0; }
+}

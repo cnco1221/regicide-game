@@ -12,8 +12,8 @@ const wss = new WebSocketServer({ server });
 
 // ---------- Game constants ----------
 const SUITS = ['S', 'H', 'D', 'C'];
-const MAX_HAND = { 2: 7, 3: 6, 4: 5 };
-const JOKERS = { 2: 0, 3: 1, 4: 2 };
+const MAX_HAND = { 1: 8, 2: 7, 3: 6, 4: 5 };
+const JOKERS = { 1: 2, 2: 0, 3: 1, 4: 2 };
 const FACE_INFO = {
   J: { value: 10, health: 20 },
   Q: { value: 15, health: 30 },
@@ -314,6 +314,20 @@ function handleJester(room, playerIdx) {
   if (jokerIdx === -1) return { error: '어릿광대 카드가 없습니다.' };
   const [joker] = hand.splice(jokerIdx, 1);
   room.discardPile.push(joker);
+
+  if (room.numPlayers === 1) {
+    // Solo variant: instead of removing enemy immunity, discard the rest
+    // of the hand and draw a fresh one.
+    room.discardPile.push(...hand.splice(0, hand.length));
+    let drawn = 0;
+    while (hand.length < room.maxHand && room.tavernDeck.length) {
+      hand.push(room.tavernDeck.shift());
+      drawn++;
+    }
+    pushLog(room, `${room.players[playerIdx].name}가 어릿광대를 냈습니다. 손패를 모두 버리고 ${drawn}장을 새로 뽑았습니다.`);
+    return {};
+  }
+
   room.enemyImmunityRemoved = true;
   room.phase = 'chooseNext';
   pushLog(room, `${room.players[playerIdx].name}가 어릿광대를 냈습니다. ${cardLabel(room.currentEnemy)}의 면역이 사라집니다.`);
@@ -515,10 +529,7 @@ wss.on('connection', (ws) => {
 
     if (msg.type === 'start') {
       if (seat !== 0) return;
-      if (room.players.length < 2) {
-        ws.send(JSON.stringify({ type: 'error', message: '최소 2명이 필요합니다.' }));
-        return;
-      }
+      if (room.players.length < 1) return;
       if (room.started) return;
       startGame(room);
       broadcastState(room);

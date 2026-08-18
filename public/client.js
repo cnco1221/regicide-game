@@ -1,6 +1,6 @@
 (() => {
   const SUIT_SYMBOL = { S: '♠', H: '♥', D: '♦', C: '♣' };
-  const SUIT_CLASS = { S: 'black', H: 'red', D: 'red', C: 'black' };
+  const SUIT_CLASS = { S: 'black', H: 'red', D: 'yellow', C: 'green' };
   const SUIT_NAME = { S: '스페이드', H: '하트', D: '다이아몬드', C: '클럽' };
   const CARD_ART = {
     J: { S: 'cards/jack_of_spades.png', H: 'cards/jack_of_hearts.png', D: 'cards/jack_of_diamonds.png', C: 'cards/jack_of_clubs.png' },
@@ -87,10 +87,12 @@
       list.appendChild(li);
     });
     const isHost = mySeat === 0;
-    $('btnStart').classList.toggle('hidden', !isHost);
+    const alone = msg.players.length === 1;
+    $('btnStart').classList.toggle('hidden', !isHost || alone);
     $('btnStart').disabled = msg.players.length < 2;
+    $('btnStartSolo').classList.toggle('hidden', !isHost || !alone);
     $('lobbyHint').textContent = isHost
-      ? (msg.players.length < 2 ? '최소 2명이 있어야 시작할 수 있습니다.' : '게임을 시작할 수 있습니다. (최대 4명)')
+      ? (alone ? '친구를 기다리거나, 혼자 싱글모드로 시작할 수 있습니다.' : '게임을 시작할 수 있습니다. (최대 4명)')
       : '방장이 게임을 시작할 때까지 기다려주세요.';
   }
 
@@ -365,6 +367,7 @@
     // log
     const logBox = $('logBox');
     logBox.innerHTML = s.log.slice().reverse().map((l) => `<div>${escapeHtml(l)}</div>`).join('');
+    $('logLine').textContent = s.log[s.log.length - 1] || '';
   }
 
   function renderEnd(s) {
@@ -403,6 +406,7 @@
     ws.send(JSON.stringify({ type: 'join', code, name }));
   };
   $('btnStart').onclick = () => ws.send(JSON.stringify({ type: 'start' }));
+  $('btnStartSolo').onclick = () => ws.send(JSON.stringify({ type: 'start' }));
   $('btnCopyCode').onclick = () => {
     navigator.clipboard?.writeText($('lobbyCode').textContent).catch(() => {});
   };

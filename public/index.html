@@ -51,6 +51,7 @@
     <p class="hint">친구에게 방 코드를 알려주고 최대 4명까지 참가할 수 있습니다.</p>
     <ul id="lobbyPlayers" class="player-list"></ul>
     <button id="btnStart" class="btn primary hidden">게임 시작</button>
+    <button id="btnStartSolo" class="btn hidden">🃏 싱글모드로 시작 (손패 8장)</button>
     <p id="lobbyHint" class="hint"></p>
   </div>
 </div>
@@ -106,6 +107,7 @@
 
     <div class="hand-area">
       <div class="hand-title">내 카드 <span id="handCount"></span></div>
+      <div id="logLine" class="log-line"></div>
       <div id="handCards" class="hand-cards"></div>
       <div class="action-row">
         <button id="btnPlay" class="btn primary" disabled>카드 내기</button>
