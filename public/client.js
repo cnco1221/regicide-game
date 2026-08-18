@@ -130,6 +130,23 @@
     return `<div class="rank ${cls}">${card.rank}</div><div class="suit ${cls}">${sym}</div>`;
   }
 
+  function renderPlayedCards(s) {
+    const area = $('playedArea');
+    const box = $('playedCards');
+    if (!s.cardsInPlay || s.cardsInPlay.length === 0) {
+      area.classList.add('hidden');
+      box.innerHTML = '';
+      return;
+    }
+    area.classList.remove('hidden');
+    box.innerHTML = s.cardsInPlay.map((c) => {
+      const owner = s.players[c.by];
+      const name = owner ? owner.name : '?';
+      const jokerCls = c.rank === 'JOKER' ? ' joker' : '';
+      return `<div class="played-card-wrap"><div class="mini-card${jokerCls}">${smallCardHtml(c)}</div><div class="played-by">${escapeHtml(name)}</div></div>`;
+    }).join('');
+  }
+
   function triggerRedFlash() {
     const el = $('flashOverlay');
     el.classList.remove('flash-red');
@@ -274,10 +291,14 @@
     }
     $('discardCount').textContent = `${s.discardCount}장`;
 
+    // cards currently in play against this enemy
+    renderPlayedCards(s);
+
     // turn banner
     const meTurn = s.currentPlayerIdx === s.yourIdx;
     const curName = s.players[s.currentPlayerIdx] ? s.players[s.currentPlayerIdx].name : '';
-    $('turnBanner').textContent = meTurn ? '⭐ 당신의 차례입니다!' : `${curName}의 차례를 기다리는 중...`;
+    $('turnBannerText').textContent = meTurn ? '⭐ 당신의 차례입니다!' : `${curName}의 차례를 기다리는 중...`;
+    $('btnRequestYield').classList.toggle('hidden', meTurn || s.phase !== 'play');
 
     // defend panel
     const inDefend = s.phase === 'defend';
@@ -424,6 +445,27 @@
     sessionStorage.removeItem('regicide_code');
     location.reload();
   };
+
+  let yieldRequestCooldown = false;
+  $('btnRequestYield').onclick = () => {
+    if (yieldRequestCooldown) return;
+    sendAction('requestYield');
+    yieldRequestCooldown = true;
+    const btn = $('btnRequestYield');
+    btn.disabled = true;
+    btn.textContent = '요청함';
+    setTimeout(() => {
+      yieldRequestCooldown = false;
+      btn.disabled = false;
+      btn.textContent = '🙏 양보 요청';
+    }, 5000);
+  };
+
+  $('btnHelp').onclick = () => $('helpModal').classList.remove('hidden');
+  $('btnCloseHelp').onclick = () => $('helpModal').classList.add('hidden');
+  $('helpModal').addEventListener('click', (e) => {
+    if (e.target.id === 'helpModal') $('helpModal').classList.add('hidden');
+  });
 
   connect();
 })();

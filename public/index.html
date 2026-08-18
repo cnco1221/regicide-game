@@ -65,48 +65,67 @@
       <div class="players-strip" id="playersStrip"></div>
     </div>
 
-    <div class="enemy-area" id="enemyArea">
-      <div class="pile-stack">
-        <div class="pile-card back" id="tavernPileCard"></div>
-        <div class="pile-label">여관 더미</div>
-        <div class="pile-count" id="tavernCount">0장</div>
-      </div>
+    <div class="game-main">
+      <div class="enemy-area" id="enemyArea">
+        <div class="enemy-block">
+          <div class="enemy-card" id="enemyCard"></div>
+          <div class="enemy-stats">
+            <div class="stat-line">
+              <span class="stat-label">체력</span>
+              <span class="stat-value" id="enemyHealthText">0/0</span>
+            </div>
+            <div class="stat-line">
+              <span class="stat-label">공격력</span>
+              <span class="stat-value" id="enemyAttackText">0</span>
+            </div>
+            <div id="immuneNote" class="immune-note hidden">🃏 면역 해제됨</div>
+          </div>
+        </div>
 
-      <div class="enemy-block">
-        <div class="enemy-card" id="enemyCard"></div>
-        <div class="enemy-stats">
-          <div class="stat-line">
-            <span class="stat-label">체력</span>
-            <span class="stat-value" id="enemyHealthText">0/0</span>
+        <div class="pile-column">
+          <div class="pile-stack">
+            <div class="pile-card back" id="tavernPileCard"></div>
+            <div class="pile-label">여관 더미</div>
+            <div class="pile-count" id="tavernCount">0장</div>
           </div>
-          <div class="stat-line">
-            <span class="stat-label">공격력</span>
-            <span class="stat-value" id="enemyAttackText">0</span>
+          <div class="pile-stack">
+            <div class="pile-card discard" id="discardPileCard"></div>
+            <div class="pile-label">버린 더미</div>
+            <div class="pile-count" id="discardCount">0장</div>
           </div>
-          <div id="immuneNote" class="immune-note hidden">🃏 면역 해제됨</div>
         </div>
       </div>
 
-      <div class="pile-stack">
-        <div class="pile-card discard" id="discardPileCard"></div>
-        <div class="pile-label">버린 더미</div>
-        <div class="pile-count" id="discardCount">0장</div>
+      <div id="playedArea" class="played-area hidden">
+        <div class="played-title">테이블에 낸 카드</div>
+        <div id="playedCards" class="played-cards"></div>
+      </div>
+
+      <div class="turn-banner" id="turnBanner">
+        <span id="turnBannerText"></span>
+        <button id="btnRequestYield" class="btn tiny request-yield hidden">🙏 양보 요청</button>
+      </div>
+
+      <div id="defendPanel" class="defend-panel hidden">
+        <p id="defendText"></p>
+      </div>
+
+      <div id="chooseNextPanel" class="choose-next hidden">
+        <p>다음 차례를 진행할 플레이어를 선택하세요:</p>
+        <div id="chooseNextButtons" class="row wrap"></div>
+      </div>
+
+      <div class="log-panel">
+        <div class="log-title">진행 기록</div>
+        <div id="logBox" class="log-box"></div>
       </div>
     </div>
 
-    <div class="turn-banner" id="turnBanner"></div>
-
-    <div id="defendPanel" class="defend-panel hidden">
-      <p id="defendText"></p>
-    </div>
-
-    <div id="chooseNextPanel" class="choose-next hidden">
-      <p>다음 차례를 진행할 플레이어를 선택하세요:</p>
-      <div id="chooseNextButtons" class="row wrap"></div>
-    </div>
-
     <div class="hand-area">
-      <div class="hand-title">내 카드 <span id="handCount"></span></div>
+      <div class="hand-title">
+        내 카드 <span id="handCount"></span>
+        <button id="btnHelp" class="help-btn" title="문양 효과 보기">?</button>
+      </div>
       <div id="logLine" class="log-line"></div>
       <div id="handCards" class="hand-cards"></div>
       <div class="action-row">
@@ -118,11 +137,49 @@
       <p id="selectionInfo" class="hint"></p>
       <p id="actionError" class="error"></p>
     </div>
+  </div>
+</div>
 
-    <div class="log-panel">
-      <div class="log-title">진행 기록</div>
-      <div id="logBox" class="log-box"></div>
+<div id="helpModal" class="modal-overlay hidden">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h3>문양 효과 요약</h3>
+      <button id="btnCloseHelp" class="btn tiny">닫기</button>
     </div>
+    <table class="suit-table">
+      <thead>
+        <tr><th>문양</th><th>효과</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="suit-cell red">♥ 하트</td>
+          <td>버린 카드 더미를 섞어 공격력만큼 카드를 여관 더미 <b>밑</b>으로 되돌립니다.</td>
+        </tr>
+        <tr>
+          <td class="suit-cell yellow">♦ 다이아몬드</td>
+          <td>현재 플레이어부터 순서대로, 공격력만큼 카드를 한 장씩 나눠 뽑습니다.</td>
+        </tr>
+        <tr>
+          <td class="suit-cell green">♣ 클럽</td>
+          <td>이번 공격의 피해가 <b>2배</b>가 됩니다.</td>
+        </tr>
+        <tr>
+          <td class="suit-cell black">♠ 스페이드</td>
+          <td>적의 공격력을 공격력만큼 감소시킵니다. (그 적을 물리칠 때까지 누적 유지)</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="modal-note">각 적은 자신과 같은 문양의 효과에 <b>면역</b>입니다 (피해는 정상 적용). 어릿광대를 내면 그 면역이 사라집니다.</p>
+    <table class="suit-table">
+      <thead>
+        <tr><th>적</th><th>공격력</th><th>체력</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>J (잭)</td><td>10</td><td>20</td></tr>
+        <tr><td>Q (퀸)</td><td>15</td><td>30</td></tr>
+        <tr><td>K (킹)</td><td>20</td><td>40</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 

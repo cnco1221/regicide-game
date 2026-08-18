@@ -259,7 +259,7 @@ function handlePlay(room, playerIdx, indices) {
   // Played cards leave the hand immediately (placed on the table) before any
   // suit power resolves, so e.g. Diamonds' draw sees the player's true hand size.
   removeIndices(hand, indices);
-  room.cardsInPlayThisFight.push(...selected);
+  room.cardsInPlayThisFight.push(...selected.map((c) => ({ ...c, by: playerIdx })));
 
   let multiplier = 1;
   for (const suit of suitsInPlay) {
@@ -345,6 +345,15 @@ function handleChooseNext(room, playerIdx, targetIdx) {
   return {};
 }
 
+function handleRequestYield(room, playerIdx) {
+  if (room.phase !== 'play') return { error: '지금은 요청할 수 없습니다.' };
+  if (playerIdx === room.currentPlayerIdx) return { error: '자신에게는 요청할 수 없습니다.' };
+  const requester = room.players[playerIdx].name;
+  const current = room.players[room.currentPlayerIdx].name;
+  pushLog(room, `🙏 ${requester}가 ${current}에게 양보를 요청했습니다!`);
+  return {};
+}
+
 function handleYield(room, playerIdx) {
   if (room.phase !== 'play' || playerIdx !== room.currentPlayerIdx) return { error: '지금은 양보할 수 없습니다.' };
   if (room.lastActionWasYield) return { error: '연속으로 양보할 수 없습니다.' };
@@ -426,6 +435,7 @@ function stateViewFor(room, viewerIdx) {
     discardTop: room.discardPile.length
       ? (({ suit, rank, value }) => ({ suit, rank, value }))(room.discardPile[room.discardPile.length - 1])
       : null,
+    cardsInPlay: room.cardsInPlayThisFight.map(({ suit, rank, value, by }) => ({ suit, rank, value, by })),
     pendingDefend: room.pendingDefend,
     lastActionWasYield: room.lastActionWasYield,
     log: room.log.slice(-40),
@@ -543,6 +553,7 @@ wss.on('connection', (ws) => {
       else if (msg.action === 'yield') result = handleYield(room, seat);
       else if (msg.action === 'discard') result = handleDiscard(room, seat, msg.indices || []);
       else if (msg.action === 'chooseNext') result = handleChooseNext(room, seat, msg.targetIdx);
+      else if (msg.action === 'requestYield') result = handleRequestYield(room, seat);
 
       if (result && result.error) {
         ws.send(JSON.stringify({ type: 'error', message: result.error }));
