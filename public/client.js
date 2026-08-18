@@ -390,9 +390,7 @@
     }
     $('selectionInfo').textContent = info;
 
-    // log
-    const logBox = $('logBox');
-    logBox.innerHTML = s.log.slice().reverse().map((l) => `<div>${escapeHtml(l)}</div>`).join('');
+    // log: single most-recent line, shown above the hand
     $('logLine').textContent = s.log[s.log.length - 1] || '';
   }
 
