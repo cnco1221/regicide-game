@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>레지사이드 (Regicide)</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="screen-home" class="screen">
+  <div class="panel">
+    <h1>레지사이드<span class="sub">REGICIDE</span></h1>
+    <p class="tagline">2~4명이 힘을 합쳐 12명의 적을 물리치는 협동 카드게임</p>
+
+    <label class="field">
+      <span>닉네임</span>
+      <input id="nameInput" type="text" maxlength="20" placeholder="닉네임을 입력하세요" />
+    </label>
+
+    <div class="row">
+      <button id="btnCreate" class="btn primary">방 만들기</button>
+    </div>
+
+    <div class="divider">또는</div>
+
+    <label class="field">
+      <span>방 코드</span>
+      <input id="codeInput" type="text" maxlength="4" placeholder="ABCD" style="text-transform:uppercase" />
+    </label>
+    <div class="row">
+      <button id="btnJoin" class="btn">방 참가하기</button>
+    </div>
+
+    <p id="homeError" class="error"></p>
+  </div>
+</div>
+
+<div id="screen-lobby" class="screen hidden">
+  <div class="panel">
+    <h2>대기실</h2>
+    <p>방 코드: <span id="lobbyCode" class="code"></span> <button id="btnCopyCode" class="btn tiny">복사</button></p>
+    <p class="hint">친구에게 방 코드를 알려주고 최대 4명까지 참가할 수 있습니다.</p>
+    <ul id="lobbyPlayers" class="player-list"></ul>
+    <button id="btnStart" class="btn primary hidden">게임 시작</button>
+    <p id="lobbyHint" class="hint"></p>
+  </div>
+</div>
+
+<div id="screen-game" class="screen hidden">
+  <div class="game-layout">
+    <div class="topbar">
+      <div class="deck-info">
+        <div class="deck-chip">🏰 성 더미 <b id="castleCount">0</b></div>
+        <div class="deck-chip">🍺 여관 더미 <b id="tavernCount">0</b></div>
+        <div class="deck-chip">🗑️ 버린 더미 <b id="discardCount">0</b></div>
+      </div>
+      <div class="players-strip" id="playersStrip"></div>
+    </div>
+
+    <div class="enemy-area" id="enemyArea">
+      <div class="enemy-card" id="enemyCard"></div>
+      <div class="enemy-stats">
+        <div class="hp-bar-wrap">
+          <div class="hp-bar" id="hpBar"></div>
+        </div>
+        <div id="enemyText" class="enemy-text"></div>
+        <div id="immuneNote" class="immune-note hidden">🃏 면역 해제됨</div>
+      </div>
+    </div>
+
+    <div class="turn-banner" id="turnBanner"></div>
+
+    <div id="defendPanel" class="defend-panel hidden">
+      <p id="defendText"></p>
+    </div>
+
+    <div id="chooseNextPanel" class="choose-next hidden">
+      <p>다음 차례를 진행할 플레이어를 선택하세요:</p>
+      <div id="chooseNextButtons" class="row wrap"></div>
+    </div>
+
+    <div class="hand-area">
+      <div class="hand-title">내 카드 <span id="handCount"></span></div>
+      <div id="handCards" class="hand-cards"></div>
+      <div class="action-row">
+        <button id="btnPlay" class="btn primary" disabled>카드 내기</button>
+        <button id="btnJester" class="btn">🃏 어릿광대 내기</button>
+        <button id="btnYield" class="btn">양보하기</button>
+        <button id="btnDiscardConfirm" class="btn primary hidden">선택한 카드 버리기</button>
+      </div>
+      <p id="selectionInfo" class="hint"></p>
+      <p id="actionError" class="error"></p>
+    </div>
+
+    <div class="log-panel">
+      <div class="log-title">진행 기록</div>
+      <div id="logBox" class="log-box"></div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-end" class="screen hidden">
+  <div class="panel">
+    <h2 id="endTitle"></h2>
+    <p id="endText" class="hint"></p>
+    <button id="btnReload" class="btn primary">새 게임</button>
+  </div>
+</div>
+
+<script src="client.js"></script>
+</body>
+</html>
