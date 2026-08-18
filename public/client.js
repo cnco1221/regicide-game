@@ -371,17 +371,16 @@
     const inDefend = s.phase === 'defend' && meTurn;
 
     $('btnPlay').classList.toggle('hidden', !inPlay);
-    $('btnJester').classList.toggle('hidden', !inPlay);
     $('btnYield').classList.toggle('hidden', !inPlay || s.numPlayers === 1);
     $('btnDiscardConfirm').classList.toggle('hidden', !inDefend);
 
     $('btnPlay').disabled = selected.size === 0;
     $('btnYield').disabled = !!s.lastActionWasYield;
-    const hasJoker = s.yourHand.some((c) => c.rank === 'JOKER');
-    $('btnJester').disabled = !hasJoker;
 
     let info = '';
-    if (inPlay && selected.size > 0) {
+    if (inPlay && selected.size === 1 && s.yourHand[[...selected][0]] && s.yourHand[[...selected][0]].rank === 'JOKER') {
+      info = '🃏 어릿광대: 적의 면역을 없앱니다' + (s.numPlayers === 1 ? ' (+ 손패를 버리고 새로 뽑습니다)' : '');
+    } else if (inPlay && selected.size > 0) {
       const sum = [...selected].reduce((acc, i) => acc + s.yourHand[i].value, 0);
       info = `선택한 카드 합계: ${sum}`;
     } else if (inDefend) {
@@ -441,8 +440,8 @@
     if (selected.size === 0) return;
     sendAction('play', { indices: [...selected] });
   };
-  $('btnJester').onclick = () => sendAction('jester');
   $('btnYield').onclick = () => sendAction('yield');
+  $('btnSort').onclick = () => sendAction('sortHand');
   $('btnDiscardConfirm').onclick = () => {
     sendAction('discard', { indices: [...selected] });
   };

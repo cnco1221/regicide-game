@@ -132,10 +132,20 @@ h2 { color: var(--accent); margin-top: 0; }
 
 .game-layout {
   width: 100%;
-  max-width: 1180px;
+  max-width: 1500px;
   height: 100%;
   margin: 0 auto;
   padding: 6px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  min-height: 0;
+}
+
+.board-column {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -149,6 +159,23 @@ h2 { color: var(--accent); margin-top: 0; }
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+}
+
+.log-sidebar {
+  flex: 0 0 300px;
+  height: 100%;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.log-sidebar .log-title { flex: none; }
+.log-sidebar .log-box {
+  flex: 1 1 auto;
+  max-height: none;
+  min-height: 0;
 }
 
 .topbar {
@@ -517,12 +544,6 @@ h2 { color: var(--accent); margin-top: 0; }
 .action-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
 .action-row .btn { flex: 1 1 140px; }
 
-.log-panel {
-  background: var(--panel);
-  border-radius: 14px;
-  padding: 10px 16px;
-  flex: none;
-}
 .log-title { color: var(--muted); font-size: 12px; margin-bottom: 4px; }
 .log-box {
   max-height: 84px;
@@ -664,10 +685,11 @@ h2 { color: var(--accent); margin-top: 0; }
 /* ---- Mobile: fit the whole game screen without scrolling ---- */
 @media (max-width: 768px) {
   #screen-game.screen { padding: 6px; }
-  .game-layout { padding: 0; gap: 6px; }
+  .game-layout { flex-direction: column; padding: 0; gap: 6px; }
+  .board-column { gap: 6px; }
   .game-main { gap: 6px; }
 
-  .log-panel { display: none; }
+  .log-sidebar { display: none; }
   .log-line { display: block; }
 
   .topbar { gap: 6px; }

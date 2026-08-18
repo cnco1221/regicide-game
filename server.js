@@ -254,6 +254,14 @@ function defeatEnemy(room, exact) {
 function handlePlay(room, playerIdx, indices) {
   if (room.phase !== 'play' || playerIdx !== room.currentPlayerIdx) return { error: '지금은 카드를 낼 수 없습니다.' };
   const hand = room.players[playerIdx].hand;
+
+  // Playing a lone Joker is the Jester action - the "카드 내기" button
+  // handles both, so route it there instead of requiring a combo.
+  const uniqIndices = [...new Set(indices)];
+  if (uniqIndices.length === 1 && hand[uniqIndices[0]] && hand[uniqIndices[0]].rank === 'JOKER') {
+    return handleJester(room, playerIdx);
+  }
+
   const selected = validateSelection(hand, indices);
   if (!selected) return { error: '유효하지 않은 카드 조합입니다.' };
 
@@ -349,6 +357,22 @@ function handleChooseNext(room, playerIdx, targetIdx) {
   room.lastActionWasYield = false;
   pushLog(room, `${room.players[targetIdx].name}의 차례로 넘어갑니다.`);
   checkStuck(room);
+  return {};
+}
+
+const SUIT_SORT_ORDER = { S: 0, H: 1, D: 2, C: 3 };
+const RANK_SORT_ORDER = { A: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, J: 11, Q: 12, K: 13 };
+
+function handleSortHand(room, playerIdx) {
+  const hand = room.players[playerIdx].hand;
+  hand.sort((a, b) => {
+    if (a.rank === 'JOKER' || b.rank === 'JOKER') {
+      if (a.rank === b.rank) return 0;
+      return a.rank === 'JOKER' ? 1 : -1;
+    }
+    if (a.suit !== b.suit) return SUIT_SORT_ORDER[a.suit] - SUIT_SORT_ORDER[b.suit];
+    return RANK_SORT_ORDER[a.rank] - RANK_SORT_ORDER[b.rank];
+  });
   return {};
 }
 
@@ -557,11 +581,11 @@ wss.on('connection', (ws) => {
     if (msg.type === 'action' && room.started) {
       let result = {};
       if (msg.action === 'play') result = handlePlay(room, seat, msg.indices || []);
-      else if (msg.action === 'jester') result = handleJester(room, seat);
       else if (msg.action === 'yield') result = handleYield(room, seat);
       else if (msg.action === 'discard') result = handleDiscard(room, seat, msg.indices || []);
       else if (msg.action === 'chooseNext') result = handleChooseNext(room, seat, msg.targetIdx);
       else if (msg.action === 'requestYield') result = handleRequestYield(room, seat);
+      else if (msg.action === 'sortHand') result = handleSortHand(room, seat);
 
       if (result && result.error) {
         ws.send(JSON.stringify({ type: 'error', message: result.error }));

@@ -58,6 +58,7 @@
 
 <div id="screen-game" class="screen hidden">
   <div class="game-layout">
+    <div class="board-column">
     <div class="topbar">
       <div class="deck-info">
         <div class="deck-chip">🏰 성 더미 <b id="castleCount">0</b></div>
@@ -114,28 +115,29 @@
         <p>다음 차례를 진행할 플레이어를 선택하세요:</p>
         <div id="chooseNextButtons" class="row wrap"></div>
       </div>
-
-      <div class="log-panel">
-        <div class="log-title">진행 기록</div>
-        <div id="logBox" class="log-box"></div>
-      </div>
     </div>
 
     <div class="hand-area">
       <div class="hand-title">
         내 카드 <span id="handCount"></span>
+        <button id="btnSort" class="help-btn" title="카드 정렬">↕</button>
         <button id="btnHelp" class="help-btn" title="문양 효과 보기">?</button>
       </div>
       <div id="logLine" class="log-line"></div>
       <div id="handCards" class="hand-cards"></div>
       <div class="action-row">
         <button id="btnPlay" class="btn primary" disabled>카드 내기</button>
-        <button id="btnJester" class="btn">🃏 어릿광대 내기</button>
         <button id="btnYield" class="btn">양보하기</button>
         <button id="btnDiscardConfirm" class="btn primary hidden">선택한 카드 버리기</button>
       </div>
       <p id="selectionInfo" class="hint"></p>
       <p id="actionError" class="error"></p>
+    </div>
+    </div>
+
+    <div class="log-sidebar">
+      <div class="log-title">진행 기록</div>
+      <div id="logBox" class="log-box"></div>
     </div>
   </div>
 </div>
